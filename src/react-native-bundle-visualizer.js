@@ -95,7 +95,7 @@ const commands = [
   bundleOutput,
   '--sourcemap-output',
   bundleOutputSourceMap,
-  '--minify',
+  // '--minify',
   isExpo
 ];
 if (resetCache) {
@@ -140,19 +140,74 @@ bundlePromise
 
       // Make sure the explorer output dir is removed
       fs.removeSync(outDir);
+      console.log(chalk.yellow('Attempting to analyze bundle...'));
       return explore(
         {
           code: bundleOutput,
-          map: bundleOutputSourceMap,
+          map: bundleOutputSourceMap
         },
         {
-          onlyMapped,
+          onlyMapped: false,
           output: {
             format,
             filename: bundleOutputExplorerFile,
           },
+          noBorderChecks: true,
+          // Add these options to be more lenient with source map errors
+          tolerateInvalidMappings: true,
+          excludeSourceMapComment: true,
+          replaceMap: {
+            from: '',
+            to: ''
+          }
         }
-      );
+      ).then((result) => {
+        if (verbose) {
+          if (result.bundles && result.bundles.length > 0) {
+            result.bundles.forEach((bundle) => {
+              Object.keys(bundle.files).forEach((file) => {
+                console.log(
+                  chalk.green(file + ', size: ' + bundle.files[file].size + ' bytes')
+                );
+              });
+            });
+          } else {
+            console.log(chalk.yellow('No bundle information available.'));
+          }
+        }
+
+        // Log any errors or warnings
+        if (result.errors) {
+          result.errors.forEach((error) => {
+            if (error.isWarning) {
+              console.log(chalk.yellow.bold('Warning: ' + error.message));
+            } else {
+              console.log(chalk.red.bold('Error: ' + error.message));
+            }
+          });
+        }
+
+        // Open output file
+        return open(bundleOutputExplorerFile);
+      }).catch(error => {
+        console.log(chalk.red('=== Detailed error ==='));
+        console.error(error);
+        
+        // Fallback to analyzing without source map
+        console.log(chalk.yellow('Attempting to analyze bundle without source map...'));
+        return explore(
+          {
+            code: bundleOutput
+          },
+          {
+            onlyMapped: false,
+            output: {
+              format,
+              filename: bundleOutputExplorerFile,
+            }
+          }
+        ).then(() => open(bundleOutputExplorerFile));
+      });
     }
 
     // Log info and open output file
