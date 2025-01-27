@@ -69,6 +69,7 @@ const bundleOutputSourceMap = bundleOutput + '.map';
 const format = argv.format || 'html';
 const bundleOutputExplorerFile = path.join(outDir, 'explorer.' + format);
 const onlyMapped = !!argv['only-mapped'] || false;
+const borderChecks = argv['border-checks'] || false;
 
 // Make sure the temp dir exists
 fs.ensureDirSync(baseDir);
@@ -96,7 +97,7 @@ const commands = [
   '--sourcemap-output',
   bundleOutputSourceMap,
   '--minify',
-  isExpo
+  isExpo,
 ];
 if (resetCache) {
   commands.push('--reset-cache');
@@ -147,6 +148,7 @@ bundlePromise
         },
         {
           onlyMapped,
+          noBorderChecks: borderChecks === false,
           output: {
             format,
             filename: bundleOutputExplorerFile,
@@ -181,7 +183,5 @@ bundlePromise
 
     // Open output file
     return open(bundleOutputExplorerFile);
-  }).catch(error => console.log(
-    chalk.red('=== error ==='),
-    error
-  ));
+  })
+  .catch((error) => console.log(chalk.red('=== error ==='), error));
