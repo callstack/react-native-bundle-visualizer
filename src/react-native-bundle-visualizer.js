@@ -2,6 +2,7 @@
 const chalk = require('chalk');
 const fs = require('fs-extra');
 const os = require('os');
+const process = require('process');
 const path = require('path');
 const argv = require('minimist')(process.argv.slice(2));
 const execa = require('execa');
@@ -70,6 +71,7 @@ const format = argv.format || 'html';
 const bundleOutputExplorerFile = path.join(outDir, 'explorer.' + format);
 const onlyMapped = !!argv['only-mapped'] || false;
 const borderChecks = argv['border-checks'] === true;
+const errorOnFail = argv['error-on-fail'] || false;
 
 // Make sure the temp dir exists
 fs.ensureDirSync(baseDir);
@@ -184,4 +186,9 @@ bundlePromise
     // Open output file
     return open(bundleOutputExplorerFile);
   })
-  .catch((error) => console.log(chalk.red('=== error ==='), error));
+  .catch((error) => {
+    console.log(chalk.red('=== error ==='), error)
+    if (errorOnFail) {
+      process.exit(1);
+    }
+  });

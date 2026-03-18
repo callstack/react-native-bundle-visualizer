@@ -27,12 +27,17 @@ jobs:
           node-version: ${{ env.NODEJS_VERSION }}
           cache: 'yarn'
 
+      - name: Install node_modules in ${{ github.workspace }}
+        run: yarn install --frozen-lockfile
+
       - name: Install React Native ${{ matrix.rn-version }} and run the visualizer
         working-directory: /tmp
         shell: bash
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: false
         run: |
           set -x # print all executed commands
-          npx @react-native-community/cli@latest init ${{ env.APP_NAME }} --version ${{ inputs.rn-ver }} --skip-git-init --install-pods false --pm yarn
+          npx @react-native-community/cli@latest init ${{ env.APP_NAME }} --version ${{ matrix.rn-version }} --skip-git-init --install-pods false --pm yarn
           cd ${{ env.APP_NAME }}
           yarn add react-native-bundle-visualizer@portal:${{ github.workspace }}
-          yarn run react-native-bundle-visualizer --verbose
+          yarn run react-native-bundle-visualizer --verbose --error-on-fail
