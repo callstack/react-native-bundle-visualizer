@@ -1,3 +1,8 @@
+# [3.2.0](https://github.com/IjzerenHein/react-native-bundle-visualizer/releases/tag/v3.2.0) (2026-03-18)
+
+- Fixes [Your source map refers to generated line 17, but the source only contains 15 line(s). Check that you are using the correct source map](https://github.com/callstack/react-native-bundle-visualizer/issues/127) disable border checks by default since all Modern React Native versions generate source maps with some invalid mappings. You can re-enable these checks by passing the `--border-checks` flag.
+
+
 # [3.1.3](https://github.com/IjzerenHein/react-native-bundle-visualizer/releases/tag/v3.1.3) (2023-02-13)
 
 ### Bug Fixes
