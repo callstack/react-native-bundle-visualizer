@@ -69,7 +69,7 @@ const bundleOutputSourceMap = bundleOutput + '.map';
 const format = argv.format || 'html';
 const bundleOutputExplorerFile = path.join(outDir, 'explorer.' + format);
 const onlyMapped = !!argv['only-mapped'] || false;
-const borderChecks = argv['border-checks'] || false;
+const borderChecks = argv['border-checks'] === true;
 
 // Make sure the temp dir exists
 fs.ensureDirSync(baseDir);

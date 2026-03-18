@@ -38,18 +38,18 @@ npm install --save-dev react-native-bundle-visualizer ./node_modules/.bin/react-
 
 All command-line arguments are optional. By default a production build will be created for the `ios` platform.
 
-| Option               | Description                                                                                                                                                                   | Example                          |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| `platform`           | Platform to build (default is **ios**)                                                                                                                                        | `--platform ios`                 |
-| `dev`                | Dev or production build (default is **false**)                                                                                                                                | `--dev false`                    |
-| `entry-file`         | Entry-file (when omitted tries to auto-resolve it)                                                                                                                            | `--entry-file ./index.ios.js`    |
-| `bundle-output`      | Output bundle-file (default is **tmp**)                                                                                                                                       | `--bundle-output ./myapp.bundle` |
-| `format`             | Output format **html**, **json** or **tsv** (default is **html**) (see [source-map-explorer options][smeo])                                                                   | `--format json`                  |
-| `only-mapped`        | Exclude "unmapped" bytes from the output (default is **false**). This will result in total counts less than the file size.                                                    | `--only-mapped`                  |
-| `verbose`            | Dumps additional output to the console (default is **false**)                                                                                                                 | `--verbose`                      |
-| `reset-cache`        | Removes cached react-native files (default is **false**)                                                                                                                      | `--reset-cache`                  |
-| `--expo`             | Set this to true/ false based on whether using expo or not. For eg, set `--expo true` when using expo. Not required to pass this for react-native cli. (default is **false**) | `--expo false`                   |
-| `--no-border-checks` | Pass the same flag to the underlying `source-map-explorer` to disable invalid mapping column/line checks.                                                                     | `--no-border-checks`             |
+| Option            | Description                                                                                                                                                                 | Example                                   |
+| ----------------- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| `platform`        | Platform to build (default is **ios**)                                                                                                                                      | `--platform ios`                          |
+| `dev`             | Dev or production build (default is **false**)                                                                                                                              | `--dev false`                             |
+| `entry-file`      | Entry-file (when omitted tries to auto-resolve it)                                                                                                                          | `--entry-file ./index.ios.js`             |
+| `bundle-output`   | Output bundle-file (default is **tmp**)                                                                                                                                     | `--bundle-output ./myapp.bundle`          |
+| `format`          | Output format **html**, **json** or **tsv** (default is **html**) (see [source-map-explorer options][smeo])                                                                 | `--format json`                           |
+| `only-mapped`     | Exclude "unmapped" bytes from the output (default is **false**). This will result in total counts less than the file size.                                                  | `--only-mapped`                           |
+| `verbose`         | Dumps additional output to the console (default is **false**)                                                                                                               | `--verbose`                               |
+| `reset-cache`     | Removes cached react-native files (default is **false**)                                                                                                                    | `--reset-cache`                           |
+| `--expo`          | Set this to true/ false based on whether using expo or not. For eg, set `--expo true` when using expo. Not required to pass this for react-native cli. (default is `false`) | `--expo false`                            |
+| `--border-checks` | Pass the same flag to the underlying `source-map-explorer` to enable invalid mapping column/line checks. (default is **false**, no check)                                   | `--no-border-checks` or `--border-checks` |
 
 [smeo]: https://github.com/danvk/source-map-explorer#options
 
