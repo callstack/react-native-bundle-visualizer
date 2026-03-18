@@ -6,21 +6,33 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  APP_NAME: MyApp
+  NODEJS_VERSION: 24
+
 jobs:
-  build:
+  test:
+    name: Analyze bundle with React Native ${{ matrix.rn-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        rn-version: [latest, 0.83.4, 0.82.1]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - name: Use Node.js ${{ env.NODEJS_VERSION }}
+        uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODEJS_VERSION }}
           cache: 'yarn'
 
-      - run: yarn install --frozen-lockfile
-      - run: yarn test
+      - name: Install React Native ${{ matrix.rn-version }} and run the visualizer
+        working-directory: /tmp
+        shell: bash
+        run: |
+          set -x # print all executed commands
+          npx @react-native-community/cli@latest init ${{ env.APP_NAME }} --version ${{ inputs.rn-ver }} --skip-git-init --install-pods false --pm yarn
+          cd ${{ env.APP_NAME }}
+          yarn add react-native-bundle-visualizer@portal:${{ github.workspace }}
+          yarn run react-native-bundle-visualizer --verbose
