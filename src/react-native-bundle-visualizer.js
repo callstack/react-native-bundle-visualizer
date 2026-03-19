@@ -7,7 +7,7 @@ const path = require('path');
 const argv = require('minimist')(process.argv.slice(2));
 const execa = require('execa');
 const open = require('open');
-const { explore } = require('source-map-explorer');
+const {explore} = require('source-map-explorer');
 const pkgJSON = JSON.parse(fs.readFileSync('./package.json'));
 
 function sanitizeString(str) {
@@ -37,7 +37,7 @@ function getEntryPoint() {
 }
 
 function getReactNativeBin() {
-  const localBin = './node_modules/.bin/react-native';
+  const localBin = isExpo ? 'node_modules/.bin/expo' : './node_modules/.bin/react-native';
   if (fs.existsSync(localBin)) return localBin;
   try {
     const reactNativeDir = path.dirname(
@@ -64,9 +64,9 @@ const isExpo = argv.expo || false;
 const dev = argv.dev || false;
 const verbose = argv.verbose || false;
 const resetCache = argv['reset-cache'] || false;
-const bundleOutput =
+let bundleOutput =
   argv['bundle-output'] || path.join(tmpDir, platform + '.bundle');
-const bundleOutputSourceMap = bundleOutput + '.map';
+let bundleOutputSourceMap = bundleOutput + '.map';
 const format = argv.format || 'html';
 const bundleOutputExplorerFile = path.join(outDir, 'explorer.' + format);
 const onlyMapped = !!argv['only-mapped'] || false;
@@ -85,8 +85,18 @@ if (fs.existsSync(bundleOutput)) {
 }
 
 // Bundle
+const expoOutputDir = path.parse(bundleOutput).dir;
 console.log(chalk.green.bold('Generating bundle...'));
-const commands = [
+const commands = isExpo ? [
+  'export',
+  '--platform',
+  platform,
+  dev && '--dev',
+  '--output-dir',
+  expoOutputDir,
+  '--no-bytecode',
+  '--source-maps',
+].filter(Boolean) : [
   'bundle',
   '--platform',
   platform,
@@ -102,8 +112,12 @@ const commands = [
   isExpo,
 ];
 if (resetCache) {
-  commands.push('--reset-cache');
-  commands.push(resetCache);
+  if (isExpo) {
+    commands.push('--clear');
+  } else {
+    commands.push('--reset-cache');
+    commands.push(resetCache);
+  }
 }
 
 const reactNativeBin = getReactNativeBin();
@@ -114,6 +128,12 @@ bundlePromise.stdout.pipe(process.stdout);
 bundlePromise
   .then(
     () => {
+      if (isExpo) {
+        const jsFolder = `${expoOutputDir}/_expo/static/js/${platform}`;
+        const files = fs.readdirSync(`${expoOutputDir}/_expo/static/js/${platform}`);
+        bundleOutput = jsFolder + '/' + files.find((file) => file.endsWith('.js'));
+        bundleOutputSourceMap = jsFolder + '/' + files.find((file) => file.endsWith('.js.map'));
+      }
       // Log bundle-size
       const stats = fs.statSync(bundleOutput);
 
@@ -136,8 +156,8 @@ bundlePromise
       console.log(
         chalk.green.bold(
           'Bundle is ' +
-            Math.round((stats.size / (1024 * 1024)) * 100) / 100 +
-            ' MB in size'
+          Math.round((stats.size / (1024 * 1024)) * 100) / 100 +
+          ' MB in size'
         ) + deltaSuffix
       );
 
@@ -183,7 +203,9 @@ bundlePromise
       });
     }
 
-    // Open output file
+    console.log(
+      chalk.green.bold('Opening bundle visualizer output file: ' + bundleOutputExplorerFile)
+    )
     return open(bundleOutputExplorerFile);
   })
   .catch((error) => {

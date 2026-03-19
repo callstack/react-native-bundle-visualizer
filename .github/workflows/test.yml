@@ -11,12 +11,12 @@ env:
   NODEJS_VERSION: 24
 
 jobs:
-  test:
+  pure_rn:
     name: Analyze bundle with React Native ${{ matrix.rn-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rn-version: [latest, 0.83.4, 0.82.1]
+        rn-version: [latest, 0.83.4, 0.82.1] # Three latest major versions of React Native
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -39,5 +39,36 @@ jobs:
           set -x # print all executed commands
           npx @react-native-community/cli@latest init ${{ env.APP_NAME }} --version ${{ matrix.rn-version }} --skip-git-init --install-pods false --pm yarn
           cd ${{ env.APP_NAME }}
-          yarn add react-native-bundle-visualizer@portal:${{ github.workspace }}
+          yarn add react-native-bundle-visualizer@portal:${{ github.workspace }} # yarn v2+ syntax
           yarn run react-native-bundle-visualizer --verbose --error-on-fail
+
+  expo:
+    name: Analyze bundle with Expo default@sdk-${{ matrix.expo-sdk }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        expo-sdk: [ 55, 54, 53 ] # Three latest major Expo SDK versions
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Use Node.js ${{ env.NODEJS_VERSION }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODEJS_VERSION }}
+          cache: 'yarn'
+
+      - name: Install node_modules in ${{ github.workspace }}
+        run: yarn install --frozen-lockfile
+
+      - name: Install Expo and run the visualizer
+        working-directory: /tmp
+        shell: bash
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: false
+        run: |
+          set -x # print all executed commands
+          yarn create expo-app ${{ env.APP_NAME }} --template default@sdk-${{ matrix.expo-sdk }}
+          cd ${{ env.APP_NAME }}
+          yarn add ${{ github.workspace }} # yarn v1 syntax
+          yarn run react-native-bundle-visualizer --verbose --expo --error-on-fail --bundle-output=./dist/ios.bundle
