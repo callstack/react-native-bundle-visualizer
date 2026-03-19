@@ -1,4 +1,13 @@
-# [3.2.0](https://github.com/IjzerenHein/react-native-bundle-visualizer/releases/tag/v3.2.0) (2026-03-18)
+# [4.0.0](https://github.com/callstack/react-native-bundle-visualizer/releases/tag/v3.2.0) (2026-03-19)
+
+**Breaking change:**
+ - Node.js `20+`
+ - Expo SDK `50+`
+ - React Native `0.72.x+`
+ - `fs-extra` was replaced with build-in `fs` module
+ - Update dependencies to their latest versions
+
+# [3.2.0](https://github.com/callstack/react-native-bundle-visualizer/releases/tag/v3.2.0) (2026-03-18)
 
 - Fixes [Your source map refers to generated line 17, but the source only contains 15 line(s). Check that you are using the correct source map](https://github.com/callstack/react-native-bundle-visualizer/issues/127) disable border checks by default since all Modern React Native versions generate source maps with some invalid mappings. You can re-enable these checks by passing the `--border-checks` flag.
 
