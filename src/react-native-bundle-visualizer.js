@@ -1,12 +1,12 @@
 #!/usr/bin/env node
+const fs = require('node:fs');
+const os = require('node:os');
+const process = require('node:process');
+const path = require('node:path');
 const chalk = require('chalk');
-const fs = require('fs-extra');
-const os = require('os');
-const process = require('process');
-const path = require('path');
 const argv = require('minimist')(process.argv.slice(2));
-const execa = require('execa');
-const open = require('open');
+const {execa} = require('execa');
+const open = require('open').default;
 const {explore} = require('source-map-explorer');
 const pkgJSON = JSON.parse(fs.readFileSync('./package.json'));
 
@@ -74,8 +74,8 @@ const borderChecks = argv['border-checks'] === true;
 const errorOnFail = argv['error-on-fail'] || false;
 
 // Make sure the temp dir exists
-fs.ensureDirSync(baseDir);
-fs.ensureDirSync(tmpDir);
+fs.mkdirSync(baseDir, { recursive: true });
+fs.mkdirSync(tmpDir, { recursive: true });
 
 // Try to obtain the previous file size
 let prevBundleSize;
@@ -162,7 +162,7 @@ bundlePromise
       );
 
       // Make sure the explorer output dir is removed
-      fs.removeSync(outDir);
+      fs.rmSync(outDir, { recursive: true, force: true });
       return explore(
         {
           code: bundleOutput,
@@ -170,6 +170,7 @@ bundlePromise
         },
         {
           onlyMapped,
+          noRoot: false,
           noBorderChecks: borderChecks === false,
           output: {
             format,
