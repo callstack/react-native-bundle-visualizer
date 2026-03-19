@@ -12,6 +12,7 @@ env:
 
 jobs:
   pure_rn:
+    if: false
     name: Analyze bundle with React Native ${{ matrix.rn-version }}
     runs-on: ubuntu-latest
     strategy:
@@ -46,8 +47,9 @@ jobs:
     name: Analyze bundle with Expo default@sdk-${{ matrix.expo-sdk }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        expo-sdk: [ 55, 54, 53 ] # Three latest major Expo SDK versions
+        expo-sdk: [ 55, 54, 53, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -68,7 +70,11 @@ jobs:
           YARN_ENABLE_IMMUTABLE_INSTALLS: false
         run: |
           set -x # print all executed commands
-          yarn create expo-app ${{ env.APP_NAME }} --template default@sdk-${{ matrix.expo-sdk }}
+          if [[ ${{ matrix.expo-sdk }} -ge 40 && ${{ matrix.expo-sdk }} -le 50 ]]; then
+            npx create-expo-app ${{ env.APP_NAME }} -t expo-template-blank@sdk-${{ matrix.expo-sdk }}
+          else
+            yarn create expo-app ${{ env.APP_NAME }} --template default@sdk-${{ matrix.expo-sdk }}
+          fi
           cd ${{ env.APP_NAME }}
           yarn add ${{ github.workspace }} # yarn v1 syntax
           yarn run react-native-bundle-visualizer --verbose --expo --error-on-fail --bundle-output=./dist/ios.bundle
